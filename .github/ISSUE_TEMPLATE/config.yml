@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Visual install guide
+    url: https://rotprods.github.io/macos-sentinel-arsenal/
+    about: See the interactive installation guide before running anything.
+  - name: Fork and adapt
+    url: https://github.com/rotprods/macos-sentinel-arsenal/fork
+    about: This repository is owner-maintained. Fork it to adapt it for your own use.
