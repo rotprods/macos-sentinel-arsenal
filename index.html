@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="macOS Sentinel Arsenal — open-source LaunchAgents for personal endpoint hardening: file integrity, process hygiene, network posture, canary files, and local-only guards." />
+  <meta name="theme-color" content="#0f172a" />
+  <title>macOS Sentinel Arsenal — Personal macOS Hardening</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sentinel-900: #020617;
+      --sentinel-800: #0f172a;
+      --sentinel-700: #1e293b;
+      --sentinel-600: #334155;
+      --sentinel-500: #475569;
+      --sentinel-400: #94a3b8;
+      --sentinel-300: #cbd5e1;
+      --sentinel-200: #e2e8f0;
+      --sentinel-100: #f1f5f9;
+      --sentinel-50: #f8fafc;
+      --accent: #10b981;
+      --accent-400: #34d399;
+      --accent-600: #059669;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--sentinel-900);
+      color: var(--sentinel-100);
+      overflow-x: hidden;
+    }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    .gradient-text {
+      background: linear-gradient(135deg, #34d399 0%, #2dd4bf 50%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(16,185,129,0.18) 0%, rgba(56,189,248,0.08) 40%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
+      animation: pulse-glow 8s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(16,185,129,0.2);
+      border-color: rgba(16,185,129,0.4);
+    }
+    .terminal {
+      background: linear-gradient(180deg, #0b1220 0%, #050914 100%);
+      border: 1px solid rgba(148,163,184,0.15);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 24px 48px -12px rgba(0,0,0,0.5);
+    }
+    .terminal-header {
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(148,163,184,0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 8px 24px -8px rgba(16,185,129,0.5);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 32px -8px rgba(16,185,129,0.6);
+    }
+    .btn-secondary {
+      border: 1px solid rgba(148,163,184,0.25);
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(16,185,129,0.5);
+      background: rgba(16,185,129,0.08);
+    }
+    .step-number {
+      background: linear-gradient(135deg, #10b981 0%, #0d9488 100%);
+      box-shadow: 0 0 20px rgba(16,185,129,0.3);
+    }
+    .tool-card {
+      background: rgba(30,41,59,0.5);
+      border: 1px solid rgba(148,163,184,0.1);
+      backdrop-filter: blur(12px);
+    }
+    .code-copy {
+      position: relative;
+    }
+    .code-copy button {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .code-copy:hover button {
+      opacity: 1;
+    }
+    .badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      opacity: 0.3;
+      animation: scanline 6s linear infinite;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    @keyframes scanline {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-glow, .scanline { animation: none; }
+      .card-hover:hover { transform: none; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="scanline"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition">
+            <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+          </div>
+          <span class="font-bold text-slate-100 text-sm sm:text-base">macOS Sentinel Arsenal</span>
+        </a>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+          <a href="#agents" class="hover:text-emerald-400 transition">Agents</a>
+          <a href="#stack" class="hover:text-emerald-400 transition">Stack</a>
+          <a href="#install" class="hover:text-emerald-400 transition">Install</a>
+          <a href="#docs" class="hover:text-emerald-400 transition">Docs</a>
+          <a href="https://github.com/rotprods/macos-sentinel-arsenal" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-emerald-400 transition">
+            <i data-lucide="github" class="w-4 h-4"></i>
+            GitHub
+          </a>
+        </div>
+        <a href="#install" class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hidden sm:inline-block">
+          Get Protected
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden grid-bg">
+    <div class="hero-glow"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-8">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Open-source · macOS 13+ · No EDR budget required
+      </div>
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] mb-6">
+        Personal endpoint hardening
+        <span class="block gradient-text">for macOS</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+        Free, native <code class="text-emerald-400 font-mono text-base">launchd</code> agents for file integrity, process hygiene, network posture, canary files, and local-only guards. Built for humans and AI agents.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <a href="#install" class="btn-primary text-white px-8 py-4 rounded-xl text-base font-bold inline-flex items-center gap-2">
+          <i data-lucide="download" class="w-5 h-5"></i>
+          Install in 5 minutes
+        </a>
+        <a href="https://github.com/rotprods/macos-sentinel-arsenal" target="_blank" rel="noopener" class="btn-secondary text-slate-300 px-8 py-4 rounded-xl text-base font-semibold inline-flex items-center gap-2">
+          <i data-lucide="github" class="w-5 h-5"></i>
+          View on GitHub
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur">
+          <div class="text-3xl font-black text-emerald-400">11</div>
+          <div class="text-xs text-slate-400 mt-1">LaunchAgents</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur">
+          <div class="text-3xl font-black text-emerald-400">$0</div>
+          <div class="text-xs text-slate-400 mt-1">Cost</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur">
+          <div class="text-3xl font-black text-emerald-400">0%</div>
+          <div class="text-xs text-slate-400 mt-1">Foreground CPU</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur">
+          <div class="text-3xl font-black text-emerald-400">MIT</div>
+          <div class="text-xs text-slate-400 mt-1">License</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What you get -->
+  <section id="agents" class="py-24 bg-slate-950 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">What you get</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">A layered defense that runs quietly in the background. Each agent does one thing well.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Agent cards -->
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="file-search" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Filesystem Tripwire</h3>
+          <p class="text-slate-400 text-sm mb-4">SHA-256 baselines for critical files. Alerts when <code class="text-emerald-400">~/.zshrc</code>, SSH keys, or app settings change unexpectedly.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Every 15 min</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Integrity</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="skull" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">MCP Zombie Killer</h3>
+          <p class="text-slate-400 text-sm mb-4">Kills orphaned <code class="text-emerald-400">node</code>/<code class="text-emerald-400">mcp</code> processes running >4h with >5% CPU. Essential if you run AI agents.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Every 30 min</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Process Hygiene</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="refresh-cw" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">BlockBlock Keepalive</h3>
+          <p class="text-slate-400 text-sm mb-4">Restarts Objective-See BlockBlock Helper.app if it stops running. Persistence protection should not go silent.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Every 30 min</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Anti-Persistence</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="shield" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">LuLu Posture Monitor</h3>
+          <p class="text-slate-400 text-sm mb-4">Verifies LuLu is active and warns if <code class="text-emerald-400">allowInstalled</code> is too permissive. No outbound traffic should be invisible.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">10:00 + login</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Firewall</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="network" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Port Sweep Monitor</h3>
+          <p class="text-slate-400 text-sm mb-4">Detects processes binding to <code class="text-emerald-400">0.0.0.0</code> or <code class="text-emerald-400">::</code> instead of localhost. Catches accidental LAN exposure.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Every 10 min</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Network</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="bird" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Canary Watch</h3>
+          <p class="text-slate-400 text-sm mb-4">Monitors decoy canary files. If an attacker reads or modifies sensitive dirs, the canary chirps first.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">At login, continuous</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Honeypot</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="radio" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Localhost-Only Guard</h3>
+          <p class="text-slate-400 text-sm mb-4">Detects dev servers exposed to the LAN. Optional kill mode for public Wi-Fi safety.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Every 30 s</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Exposure Control</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="clipboard-check" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">macOS Audit</h3>
+          <p class="text-slate-400 text-sm mb-4">Periodic posture report: FileVault, SIP, Gatekeeper, users, SSH, permissions, and third-party system extensions.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Daily 03:00 + 6h</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Posture</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="scan-search" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">YARA Monthly</h3>
+          <p class="text-slate-400 text-sm mb-4">Scans a configurable folder with YARA rules. Defaults to <code class="text-emerald-400">~/Downloads</code>. Aborts if the rule fails to compile.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">1st of month 03:00</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Malware Scan</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="archive" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Audit Log Rotate</h3>
+          <p class="text-slate-400 text-sm mb-4">Rotates audit logs with SHA-256 manifests. Keeps evidence tamper-evident and bounded in size.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Mondays 09:00</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Forensics</span>
+          </div>
+        </div>
+
+        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+            <i data-lucide="list-checks" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Login Item Inspector</h3>
+          <p class="text-slate-400 text-sm mb-4">Audits LaunchAgents and login items hourly. Surfaces new persistence you did not authorize.</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500">Hourly</span>
+            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Persistence Audit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recommended stack -->
+  <section id="stack" class="py-24 bg-slate-900/50 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Recommended defense stack</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Sentinel Arsenal is the automation layer. Pair it with these tools for depth.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a href="https://objective-see.org/tools.html" target="_blank" rel="noopener" class="tool-card rounded-2xl p-6 hover:border-emerald-500/30 transition group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+            <i data-lucide="globe" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-1">LuLu</h3>
+          <p class="text-slate-400 text-sm mb-3">Outgoing firewall. Ask before any app connects to the internet.</p>
+          <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+            Install guide <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+          </span>
+        </a>
+
+        <a href="https://objective-see.org/tools.html" target="_blank" rel="noopener" class="tool-card rounded-2xl p-6 hover:border-emerald-500/30 transition group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+            <i data-lucide="lock" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-1">BlockBlock</h3>
+          <p class="text-slate-400 text-sm mb-3">Persistence monitor. Alerts when something tries to install itself as a startup item.</p>
+          <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+            Install guide <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+          </span>
+        </a>
+
+        <a href="https://www.malwarebytes.com/" target="_blank" rel="noopener" class="tool-card rounded-2xl p-6 hover:border-emerald-500/30 transition group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+            <i data-lucide="bug-off" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-1">Malwarebytes</h3>
+          <p class="text-slate-400 text-sm mb-3">Anti-malware with real-time protection. Catches known threats.</p>
+          <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+            Install guide <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+          </span>
+        </a>
+
+        <a href="https://objective-see.org/tools.html" target="_blank" rel="noopener" class="tool-card rounded-2xl p-6 hover:border-emerald-500/30 transition group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition">
+            <i data-lucide="video" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-1">OverSight</h3>
+          <p class="text-slate-400 text-sm mb-3">Mic & camera monitor. Alerts when an app accesses microphone or webcam.</p>
+          <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">
+            Install guide <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="py-24 bg-slate-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Install in 4 steps</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">No root required for most agents. Review the script before running it.</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto space-y-8">
+        <div class="flex gap-4 sm:gap-6">
+          <div class="flex-shrink-0">
+            <div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-slate-900 font-black text-lg">1</div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2">Install the external tools first</h3>
+            <p class="text-slate-400 mb-4">LuLu, BlockBlock, Malwarebytes, and OverSight form the foundation. See the guides below.</p>
+            <div class="flex flex-wrap gap-2">
+              <a href="docs/install-lulu.md" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-emerald-400 hover:border-emerald-500/40 transition">LuLu</a>
+              <a href="docs/install-blockblock.md" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-emerald-400 hover:border-emerald-500/40 transition">BlockBlock</a>
+              <a href="docs/install-malwarebytes.md" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-emerald-400 hover:border-emerald-500/40 transition">Malwarebytes</a>
+              <a href="docs/install-oversight.md" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-emerald-400 hover:border-emerald-500/40 transition">OverSight</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 sm:gap-6">
+          <div class="flex-shrink-0">
+            <div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-slate-900 font-black text-lg">2</div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2">Clone the repo</h3>
+            <p class="text-slate-400 mb-4">Get the latest code directly from GitHub.</p>
+            <div class="terminal rounded-xl overflow-hidden code-copy">
+              <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                <span class="ml-2 text-xs text-slate-500">terminal</span>
+              </div>
+              <div class="p-4 font-mono text-sm text-emerald-300 overflow-x-auto">
+                <pre id="cmd-clone">git clone https://github.com/rotprods/macos-sentinel-arsenal.git
+cd macos-sentinel-arsenal</pre>
+                <button onclick="copyCode('cmd-clone')" class="absolute top-3 right-3 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Copy">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 sm:gap-6">
+          <div class="flex-shrink-0">
+            <div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-slate-900 font-black text-lg">3</div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2">Run the installer</h3>
+            <p class="text-slate-400 mb-4">Choose interactive or silent install. Add <code class="text-emerald-400">--dry-run</code> to preview changes.</p>
+            <div class="terminal rounded-xl overflow-hidden code-copy">
+              <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                <span class="ml-2 text-xs text-slate-500">terminal</span>
+              </div>
+              <div class="p-4 font-mono text-sm text-emerald-300 overflow-x-auto">
+                <pre id="cmd-install">./install.sh --all --non-interactive</pre>
+                <button onclick="copyCode('cmd-install')" class="absolute top-3 right-3 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Copy">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4 sm:gap-6">
+          <div class="flex-shrink-0">
+            <div class="step-number w-12 h-12 rounded-full flex items-center justify-center text-slate-900 font-black text-lg">4</div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2">Verify</h3>
+            <p class="text-slate-400 mb-4">Confirm the agents are loaded and logs are being written.</p>
+            <div class="terminal rounded-xl overflow-hidden code-copy">
+              <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                <span class="ml-2 text-xs text-slate-500">terminal</span>
+              </div>
+              <div class="p-4 font-mono text-sm text-emerald-300 overflow-x-auto">
+                <pre id="cmd-verify">launchctl list | grep com.sentinel
+ls ~/.local/share/sentinel-arsenal/logs/</pre>
+                <button onclick="copyCode('cmd-verify')" class="absolute top-3 right-3 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Copy">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16 text-center">
+        <p class="text-slate-500 text-sm mb-4">New to Terminal? Start here:</p>
+        <a href="docs/primeros-pasos.md" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-semibold transition">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          Primeros pasos (para usuarios sin experiencia en Terminal)
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Docs -->
+  <section id="docs" class="py-24 bg-slate-900/30 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Documentation</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Every agent and every tool has its own guide. No guessing.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="docs/00-quickstart.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="zap" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Quickstart</span>
+        </a>
+        <a href="docs/primeros-pasos.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="baby" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Primeros pasos</span>
+        </a>
+        <a href="docs/install-lulu.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="globe" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Install LuLu</span>
+        </a>
+        <a href="docs/install-blockblock.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="lock" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Install BlockBlock</span>
+        </a>
+        <a href="docs/install-malwarebytes.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="bug-off" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Install Malwarebytes</span>
+        </a>
+        <a href="docs/install-oversight.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="video" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Install OverSight</span>
+        </a>
+        <a href="docs/01-tripwire.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="file-search" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Tripwire</span>
+        </a>
+        <a href="docs/02-mcp-zombie-killer.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="skull" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">MCP Zombie Killer</span>
+        </a>
+        <a href="docs/99-troubleshooting.md" class="flex items-center gap-3 p-4 rounded-xl bg-slate-800/40 border border-slate-700/50 hover:border-emerald-500/40 transition">
+          <i data-lucide="wrench" class="w-5 h-5 text-emerald-400"></i>
+          <span class="text-slate-200 font-medium">Troubleshooting</span>
+        </a>
+      </div>
+
+      <div class="mt-8 text-center">
+        <a href="AGENTS.md" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-800 border border-slate-700 text-emerald-400 font-semibold hover:border-emerald-500/40 transition">
+          <i data-lucide="bot" class="w-5 h-5"></i>
+          For AI agents: read AGENTS.md
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Author / disclaimer -->
+  <section class="py-20 bg-slate-950">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-3 mb-6">
+        <img src="https://github.com/rotprods.png" alt="@rotprods" class="w-16 h-16 rounded-full border-2 border-emerald-500/30" onerror="this.style.display='none'">
+        <div class="text-left">
+          <div class="text-white font-bold">Maintained by @rotprods</div>
+          <div class="text-slate-400 text-sm">Infale Labs · macOS security enthusiast</div>
+        </div>
+      </div>
+      <p class="text-slate-400 text-sm leading-relaxed mb-6">
+        This project is provided <strong class="text-slate-300">as-is</strong> for educational and personal hardening purposes. It does <strong class="text-slate-300">not</strong> replace a commercial EDR, nor does it guarantee security. Review every script before running it on your machine.
+      </p>
+      <div class="flex items-center justify-center gap-4 text-sm">
+        <span class="text-slate-500">MIT License</span>
+        <span class="text-slate-700">·</span>
+        <span class="text-slate-500">Owner-maintained</span>
+        <span class="text-slate-700">·</span>
+        <span class="text-slate-500">Forks welcome</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+        <span>macOS Sentinel Arsenal</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="https://github.com/rotprods/macos-sentinel-arsenal" class="hover:text-emerald-400 transition">GitHub</a>
+        <a href="docs/99-troubleshooting.md" class="hover:text-emerald-400 transition">Help</a>
+        <a href="LICENSE" class="hover:text-emerald-400 transition">License</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    function copyCode(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        const btn = el.parentElement.querySelector('button');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-400"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(() => btn.innerHTML = original, 1500);
+      });
+    }
+  </script>
+</body>
+</html>

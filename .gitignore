@@ -1,0 +1,42 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# Backups
+*.bak
+*.backup
+*.pre-*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Secrets (defense in depth)
+*.env
+*.key
+*.pem
+*.p12
+*.crt
+*.cer
+*.der
+*.age
+.credentials
+secrets/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Rendered local plists (if generated during dev)
+*.rendered.plist

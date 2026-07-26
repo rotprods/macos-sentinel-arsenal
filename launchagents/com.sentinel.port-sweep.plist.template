@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.sentinel.port-sweep</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{SCRIPT_DIR}}/port-sweep.sh</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>600</integer>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>{{HOME}}/.local/share/sentinel-arsenal/logs/port-sweep.out</string>
+  <key>StandardErrorPath</key>
+  <string>{{HOME}}/.local/share/sentinel-arsenal/logs/port-sweep.err</string>
+</dict>
+</plist>
