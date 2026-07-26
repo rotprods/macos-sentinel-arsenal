@@ -154,10 +154,67 @@
     .mobile-menu.open {
       transform: translateY(0);
     }
+    .agent-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out, opacity 0.25s ease-out, padding 0.25s ease-out;
+      opacity: 0;
+    }
+    .agent-card.open .agent-details {
+      max-height: 1200px;
+      opacity: 1;
+      padding-top: 1rem;
+    }
+    .agent-card.open .chevron {
+      transform: rotate(180deg);
+    }
+    .chevron {
+      transition: transform 0.25s ease;
+    }
+    .note-box {
+      background: rgba(16,185,129,0.06);
+      border-left: 3px solid rgba(16,185,129,0.4);
+    }
+    .warning-box {
+      background: rgba(245,158,11,0.06);
+      border-left: 3px solid rgba(245,158,11,0.4);
+    }
+    .faq-item {
+      border-bottom: 1px solid rgba(148,163,184,0.1);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out, opacity 0.25s ease-out;
+      opacity: 0;
+    }
+    .faq-item.open .faq-answer {
+      max-height: 600px;
+      opacity: 1;
+    }
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+    }
+    .faq-chevron {
+      transition: transform 0.25s ease;
+    }
+    .architecture-arrow {
+      position: relative;
+    }
+    .architecture-arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 24px;
+      background: linear-gradient(to bottom, rgba(16,185,129,0.5), transparent);
+    }
     @media (prefers-reduced-motion: reduce) {
       .hero-glow, .scanline { animation: none; }
       .card-hover:hover { transform: none; }
-      .mobile-menu { transition: none; }
+      .mobile-menu, .agent-details, .faq-answer { transition: none; }
     }
   </style>
 </head>
@@ -223,7 +280,7 @@
         <span class="block gradient-text">for macOS</span>
       </h1>
       <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-        Free, native <code class="text-emerald-400 font-mono text-base">launchd</code> agents for file integrity, process hygiene, network posture, canary files, and local-only guards. Built for humans and AI agents.
+        Free, native <code class="text-emerald-400 font-mono text-base">launchd</code> agents that watch your Mac 24/7: file integrity, process hygiene, network posture, canary files, and local-only guards. Built for humans and AI agents.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
         <a href="#install" class="btn-primary text-white px-8 py-4 rounded-xl text-base font-bold inline-flex items-center gap-2">
@@ -258,145 +315,560 @@
     </div>
   </section>
 
+  <!-- Why this matters -->
+  <section class="py-24 bg-slate-950 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Why this matters</h2>
+        <p class="text-slate-400 max-w-3xl mx-auto text-lg">
+          macOS ya incluye buenas defensas (Gatekeeper, SIP, FileVault), pero no te avisa cuando algo cambia <strong class="text-slate-200">después</strong> de la instalación. Sentinel Arsenal añade visibilidad y respuesta automática.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-700/50 architecture-arrow">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <i data-lucide="shield" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">1. Prevent</h3>
+          <p class="text-slate-400 text-sm">Gatekeeper, SIP, FileVault y el firewall de Apple bloquean la mayoría de amenazas <strong class="text-slate-300">antes</strong> de que ocurran.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-700/50 architecture-arrow">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <i data-lucide="eye" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">2. Detect</h3>
+          <p class="text-slate-400 text-sm">LuLu, BlockBlock, OverSight y los agentes Sentinel detectan comportamiento sospechoso: conexiones, persistencia, micrófono, cambios de archivos.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-700/50 architecture-arrow">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <i data-lucide="bell-ring" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">3. Alert</h3>
+          <p class="text-slate-400 text-sm">Recibes notificaciones y logs con marcas de tiempo. Sabes <strong class="text-slate-300">qué</strong> pasó, <strong class="text-slate-300">cuándo</strong> y <strong class="text-slate-300">cómo investigarlo</strong>.</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-700/50">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <i data-lucide="hammer" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">4. Respond</h3>
+          <p class="text-slate-400 text-sm">Algunos agentes actúan solos: matan procesos zombis, cierran servidores expuestos, rotan logs con firmas SHA-256.</p>
+        </div>
+      </div>
+
+      <div class="note-box rounded-xl p-6 max-w-4xl mx-auto">
+        <div class="flex items-start gap-4">
+          <i data-lucide="lightbulb" class="w-6 h-6 text-emerald-400 flex-shrink-0 mt-0.5"></i>
+          <div>
+            <p class="text-slate-200 font-semibold mb-2">¿Esto es un antivirus?</p>
+            <p class="text-slate-400 text-sm leading-relaxed">No. Sentinel Arsenal es una capa de <strong class="text-slate-300">visibilidad + automatización</strong>. No reemplaza Malwarebytes, un EDR comercial ni el sentido común. Pero te da alertas tempranas que la mayoría de usuarios nunca ven.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- What you get -->
   <section id="agents" class="py-24 bg-slate-950 relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16">
         <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">What you get</h2>
-        <p class="text-slate-400 max-w-2xl mx-auto">A layered defense that runs quietly in the background. Each agent does one thing well.</p>
+        <p class="text-slate-400 max-w-3xl mx-auto">Haz clic en cualquier tarjeta para ver <strong class="text-slate-300">por qué existe</strong>, <strong class="text-slate-300">un ejemplo real</strong> y <strong class="text-slate-300">cómo instalarlo solo</strong>.</p>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Agent cards -->
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="file-search" class="w-6 h-6 text-emerald-400"></i>
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="file-search" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Filesystem Tripwire</h3>
+                <p class="text-slate-400 text-sm">SHA-256 baselines for critical files. Alerts when <code class="text-emerald-400">~/.zshrc</code>, SSH keys, or app settings change unexpectedly.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">Filesystem Tripwire</h3>
-          <p class="text-slate-400 text-sm mb-4">SHA-256 baselines for critical files. Alerts when <code class="text-emerald-400">~/.zshrc</code>, SSH keys, or app settings change unexpectedly.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Every 15 min</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Integrity</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="skull" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">MCP Zombie Killer</h3>
-          <p class="text-slate-400 text-sm mb-4">Kills orphaned <code class="text-emerald-400">node</code>/<code class="text-emerald-400">mcp</code> processes running >4h with >5% CPU. Essential if you run AI agents.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Every 30 min</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Process Hygiene</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="refresh-cw" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">BlockBlock Keepalive</h3>
-          <p class="text-slate-400 text-sm mb-4">Restarts Objective-See BlockBlock Helper.app if it stops running. Persistence protection should not go silent.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Every 30 min</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Anti-Persistence</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="shield" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">LuLu Posture Monitor</h3>
-          <p class="text-slate-400 text-sm mb-4">Verifies LuLu is active and warns if <code class="text-emerald-400">allowInstalled</code> is too permissive. No outbound traffic should be invisible.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">10:00 + login</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Firewall</span>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Si un malware o una app maliciosa modifica tus shells (<code class="text-emerald-400">.zshrc</code>, <code class="text-emerald-400">.bashrc</code>), tus claves SSH o la configuración de una app, Tripwire lo detecta en <strong class="text-white">menos de 15 minutos</strong>.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Una app de terceros añade una línea a <code class="text-emerald-400">~/.zshrc</code> para ejecutarse en cada Terminal. Tripwire compara el hash actual con la línea base y dispara: <span class="text-emerald-400">"Changed: ~/.zshrc"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">How to configure</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Edita <code class="text-emerald-400">~/.local/share/sentinel-arsenal/watchlist.txt</code> y añade una ruta por línea. Usa <code class="text-emerald-400">~</code> o <code class="text-emerald-400">$HOME</code>. La primera ejecución crea la línea base; las siguientes comparan.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=tripwire</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Every 15 min · RunAtLoad</span>
+                <a href="docs/tripwire.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="network" class="w-6 h-6 text-emerald-400"></i>
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="skull" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">MCP Zombie Killer</h3>
+                <p class="text-slate-400 text-sm">Kills orphaned <code class="text-emerald-400">node</code>/<code class="text-emerald-400">mcp</code> processes running >4h with >5% CPU. Essential if you run AI agents.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">Port Sweep Monitor</h3>
-          <p class="text-slate-400 text-sm mb-4">Detects processes binding to <code class="text-emerald-400">0.0.0.0</code> or <code class="text-emerald-400">::</code> instead of localhost. Catches accidental LAN exposure.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Every 10 min</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Network</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="bird" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Canary Watch</h3>
-          <p class="text-slate-400 text-sm mb-4">Monitors decoy canary files. If an attacker reads or modifies sensitive dirs, the canary chirps first.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">At login, continuous</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Honeypot</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="radio" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Localhost-Only Guard</h3>
-          <p class="text-slate-400 text-sm mb-4">Detects dev servers exposed to the LAN. Optional kill mode for public Wi-Fi safety.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Every 30 s</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Exposure Control</span>
-          </div>
-        </div>
-
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="clipboard-check" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">macOS Audit</h3>
-          <p class="text-slate-400 text-sm mb-4">Periodic posture report: FileVault, SIP, Gatekeeper, users, SSH, permissions, and third-party system extensions.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Daily 03:00 + 6h</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Posture</span>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Los agentes de IA (Claude Code, Cursor, etc.) levantan procesos <code class="text-emerald-400">node</code> o <code class="text-emerald-400">mcp</code>. Si se desconectan mal, pueden quedar horas consumiendo CPU y batería. Este agente los mata con TERM primero, KILL si resisten.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">A las 3 AM un agente MCP queda colgado al 30% CPU. A las 3:30, el agente envía <span class="text-emerald-400">SIGTERM</span>. Si sigue vivo, <span class="text-emerald-400">SIGKILL</span>. Recibes una notificación: <span class="text-emerald-400">"Terminated 1 long-running MCP/node processes"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Tune it</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Variables de entorno: <code class="text-emerald-400">MAX_CPU</code> (default 5.0%) y <code class="text-emerald-400">MAX_AGE_MIN</code> (default 240 min). Edita el plist si quieres umbrales distintos.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=mcp-zombie-killer</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Every 30 min · RunAtLoad</span>
+                <a href="docs/mcp-zombie-killer.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="scan-search" class="w-6 h-6 text-emerald-400"></i>
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="refresh-cw" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">BlockBlock Keepalive</h3>
+                <p class="text-slate-400 text-sm">Restarts Objective-See BlockBlock Helper.app if it stops running. Persistence protection should not go silent.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">YARA Monthly</h3>
-          <p class="text-slate-400 text-sm mb-4">Scans a configurable folder with YARA rules. Defaults to <code class="text-emerald-400">~/Downloads</code>. Aborts if the rule fails to compile.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">1st of month 03:00</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Malware Scan</span>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">BlockBlock detecta cuando un programa intenta instalarse para arrancar automáticamente. Si su Helper.app se detiene, un malware puede persistir sin avisar. Este agente lo vuelve a levantar.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Tras una actualización de macOS, BlockBlock Helper no arranca. El agente detecta que no está en ejecución, lanza <code class="text-emerald-400">open "/Applications/BlockBlock Helper.app"</code> y verifica que vuelva.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Prerequisite</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Necesitas tener BlockBlock instalado. Sigue la guía: <a href="docs/install-blockblock.md" class="text-emerald-400 hover:text-emerald-300">install-blockblock.md</a>.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=blockblock-keepalive</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Every 30 min · RunAtLoad</span>
+                <a href="docs/blockblock-keepalive.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="archive" class="w-6 h-6 text-emerald-400"></i>
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="shield" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">LuLu Posture Monitor</h3>
+                <p class="text-slate-400 text-sm">Verifies LuLu is active and warns if rules are too permissive. No outbound traffic should be invisible.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">Audit Log Rotate</h3>
-          <p class="text-slate-400 text-sm mb-4">Rotates audit logs with SHA-256 manifests. Keeps evidence tamper-evident and bounded in size.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Mondays 09:00</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Forensics</span>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">LuLu es un cortafuegos de salida: pregunta antes de que cualquier app se conecte a internet. Si LuLu se detiene o tienes una regla <code class="text-emerald-400">any</code> que permite todo, pierdes ese control. Este agente lo verifica cada día.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">LuLu deja de ejecutarse tras un reinicio. El agente detecta que no hay proceso <code class="text-emerald-400">LuLu</code> y envía una alerta. También avisa si detecta reglas <code class="text-emerald-400">any</code> en la configuración.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Prerequisite</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Instala LuLu primero: <a href="docs/install-lulu.md" class="text-emerald-400 hover:text-emerald-300">install-lulu.md</a>. Sin LuLu, este agente solo escribe <code class="text-emerald-400">"LuLu.app not installed"</code> en el log.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=lulu-posture</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Daily 10:00 + RunAtLoad</span>
+                <a href="docs/lulu-posture.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-            <i data-lucide="list-checks" class="w-6 h-6 text-emerald-400"></i>
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="network" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Port Sweep Monitor</h3>
+                <p class="text-slate-400 text-sm">Detects processes binding to <code class="text-emerald-400">0.0.0.0</code> or <code class="text-emerald-400">::</code> instead of localhost. Catches accidental LAN exposure.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
           </div>
-          <h3 class="text-lg font-bold text-white mb-2">Login Item Inspector</h3>
-          <p class="text-slate-400 text-sm mb-4">Audits LaunchAgents and login items hourly. Surfaces new persistence you did not authorize.</p>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Hourly</span>
-            <span class="badge px-2 py-1 rounded bg-emerald-500/10 text-emerald-400">Persistence Audit</span>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Por defecto, muchos servidores de desarrollo (Vite, Next.js, Flask) escuchan en <code class="text-emerald-400">0.0.0.0</code> para ser "fáciles". Eso expone tu Mac a la red local. En una cafetería, cualquiera puede conectarse.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Lanzas <code class="text-emerald-400">nvite --host</code> sin darte cuenta y abre el puerto 5173 en <code class="text-emerald-400">0.0.0.0</code>. El agente detecta: <span class="text-emerald-400">"Wildcard listener: node 12345 *:5173"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Tune it</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Añade puertos legítimos a <code class="text-emerald-400">~/.local/share/sentinel-arsenal/port-allowlist.txt</code>, uno por línea. Requiere <code class="text-emerald-400">lsof</code> (<code class="text-emerald-400">brew install lsof</code>).</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=port-sweep</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Every 10 min · RunAtLoad</span>
+                <a href="docs/port-sweep.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="bird" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Canary Watch</h3>
+                <p class="text-slate-400 text-sm">Monitors decoy canary files. If an attacker reads or modifies sensitive dirs, the canary chirps first.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Un canario es un archivo señuelo. Si alguien entra a tu cuenta y toca archivos, el canario cambia o desaparece antes que tus datos reales. Es una alarma temprana barata y efectiva.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Colocas <code class="text-emerald-400">backup-config.txt</code> en <code class="text-emerald-400">~/Documents/sensitive/</code>. Un script malicioso entra, lee todo el directorio y modifica el canario. Recibes: <span class="text-emerald-400">"Canary tampered: backup-config.txt"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">How to configure</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Edita <code class="text-emerald-400">~/.local/share/sentinel-arsenal/canary-list.txt</code> con formato <code class="text-emerald-400">nombre|contenido_esperado</code>. El agente crea el archivo si no existe y verifica su hash.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=canary-watch</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">At login, every event · RunAtLoad</span>
+                <a href="docs/canary-watch.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="radio" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Localhost-Only Guard</h3>
+                <p class="text-slate-400 text-sm">Detects dev servers exposed to the LAN. Optional kill mode for public Wi-Fi safety.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Port Sweep te avisa de escuchas wildcard. Localhost-Only Guard va más lejos: verifica que tus servidores de desarrollo usen <code class="text-emerald-400">127.0.0.1</code> y, opcionalmente, los mata en Wi-Fi pública.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Trabajas desde un aeropuerto con <code class="text-emerald-400">next dev --hostname 0.0.0.0</code>. El guard detecta el listener público y, si estás en SSID <code class="text-emerald-400">KILL_WILDCARD_ON_SSID="Airport_Free"</code>, envía <span class="text-emerald-400">SIGKILL</span> y notifica.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Kill mode = opt-in</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Por defecto solo alerta. Para activar la matanza automática, edita el plist y descomenta <code class="text-emerald-400">KILL_WILDCARD_ON_SSID=</code> con el SSID exacto. Úsalo con cuidado.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=localhost-guard</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Every 30 s · RunAtLoad</span>
+                <a href="docs/localhost-guard.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="clipboard-check" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">macOS Audit</h3>
+                <p class="text-slate-400 text-sm">Periodic posture report: FileVault, SIP, Gatekeeper, users, SSH, permissions, and third-party system extensions.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Las configuraciones "por seguridad" se desactivan con el tiempo: FileVault off tras una reinstalación, SIP alert-only en modo recovery, Gatekeeper desactivado con <code class="text-emerald-400">sudo spctl --master-disable</code>. Este agente revisa el estado cada 6 horas.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">What it checks</p>
+                <ul class="text-slate-300 text-sm list-disc list-inside space-y-1">
+                  <li>FileVault enabled</li>
+                  <li>SIP enabled &amp; not "Configuration Disabled"</li>
+                  <li>Gatekeeper status</li>
+                  <li>SSH root login disabled</li>
+                  <li>Users con UID 0 / administradores</li>
+                  <li>System extensions de terceros instaladas</li>
+                </ul>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Permission level</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Algunas comprobaciones requieren privilegios elevados. Para el reporte completo, añade el agente a <code class="text-emerald-400">/etc/sudoers.d/</code> (ver doc). Sin sudo, simplemente informa de campos vacíos.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=macos-audit</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Daily 03:00 + every 6 h · RunAtLoad</span>
+                <a href="docs/macos-audit.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="scan-search" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">YARA Monthly</h3>
+                <p class="text-slate-400 text-sm">Scans a configurable folder with YARA rules. Defaults to <code class="text-emerald-400">~/Downloads</code>. Aborts if the rule fails to compile.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">YARA es el estándar de la industria para detectar familias de malware por patrones. Incluimos reglas básicas para macros ofuscadas, scripts sospechosos y binarios rares. La regla por defecto es un punto de partida, no un antivirus.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Descargas un .zip con un .dmg adjunto. YARA escanea <code class="text-emerald-400">~/Downloads</code> el primer día de mes y reporta: <span class="text-emerald-400">"suspect_macro_doc rule matched: Contrato_Falso.docm"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Prerequisite</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Necesitas <code class="text-emerald-400">yara</code> instalado: <code class="text-emerald-400">brew install yara</code>. Puedes sustituir nuestra regla básica por el repositorio de reglas que prefieras editando la ruta en el plist.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=yara-monthly</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">1st of month 03:00 · RunAtLoad</span>
+                <a href="docs/yara-monthly.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="archive" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Audit Log Rotate</h3>
+                <p class="text-slate-400 text-sm">Rotates audit logs with SHA-256 manifests. Keeps evidence tamper-evident and bounded in size.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Si un atacante entra, lo primero que hace es borrar logs. Con rotación + manifest SHA-256, tienes copias antiguas firmadas en disco. Detectar la manipulación es más fácil porque puedes comparar hashes.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">What it does</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Cada lunes comprime logs mayores de 5 MB en <code class="text-emerald-400">~/.local/share/sentinel-arsenal/logs/</code>, genera un <code class="text-emerald-400">manifest.sha256</code> y limpia archivos con más de 30 días.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Forensic note</p>
+                <p class="text-slate-300 text-sm leading-relaxed">El manifest se guarda en el propio directorio de logs, por lo que un atacante con acceso root podría regenerarlo. Para máxima integridad, copia el manifest a un medio externo o usa la cadena de auditoría separada del agente <code class="text-emerald-400">Chain Writer</code> (en desarrollo).</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=auditlog-rotate</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Mondays 09:00 · RunAtLoad</span>
+                <a href="docs/auditlog-rotate.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card card-hover bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6 cursor-pointer" onclick="toggleAgent(this)">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <i data-lucide="list-checks" class="w-6 h-6 text-emerald-400"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white mb-1">Login Item Inspector</h3>
+                <p class="text-slate-400 text-sm">Audits LaunchAgents and login items hourly. Surfaces new persistence you did not authorize.</p>
+              </div>
+            </div>
+            <i data-lucide="chevron-down" class="chevron w-5 h-5 text-slate-500 flex-shrink-0 mt-1"></i>
+          </div>
+          <div class="agent-details">
+            <div class="space-y-4">
+              <div class="note-box rounded-lg p-4">
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Why it matters</p>
+                <p class="text-slate-300 text-sm leading-relaxed">El 80% del malware en macOS gana si consigue persistencia: un LaunchAgent, un LaunchDaemon, un login item o un perfil de configuración. Este agente toma un inventario y avisa cuando aparece algo nuevo.</p>
+              </div>
+              <div>
+                <p class="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">Real example</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Instalas una app "gratuita" que deja un LaunchAgent en <code class="text-emerald-400">~/Library/LaunchAgents/com.ejemplo.miner.plist</code>. Una hora después recibes: <span class="text-emerald-400">"New login item: com.ejemplo.miner"</span>.</p>
+              </div>
+              <div class="warning-box rounded-lg p-4">
+                <p class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">False positives</p>
+                <p class="text-slate-300 text-sm leading-relaxed">Cada vez que instales una app legítima con LaunchAgent (Dropbox, Docker, 1Password) recibirás una alerta. Esto es correcto: tú decides si es legítimo. Añade el label a tu lista de autorizados si lo reconoces.</p>
+              </div>
+              <div class="terminal rounded-xl overflow-hidden">
+                <div class="terminal-header px-4 py-2 flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <span class="ml-2 text-xs text-slate-500">Install only this agent</span>
+                </div>
+                <div class="p-4 font-mono text-sm text-emerald-300">./install.sh --agents=login-item-inspector</div>
+              </div>
+              <div class="flex items-center justify-between text-xs pt-2">
+                <span class="text-slate-500">Hourly · RunAtLoad</span>
+                <a href="docs/login-item-inspector.md" class="text-emerald-400 hover:text-emerald-300 font-semibold">Read full doc →</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -625,6 +1097,130 @@ ls ~/.local/share/sentinel-arsenal/logs/</pre>
     </div>
   </section>
 
+  <!-- How to read an alert -->
+  <section id="alerts" class="py-24 bg-slate-950 border-y border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">How to read an alert</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Every Sentinel alert follows the same pattern so you can decide in seconds.</p>
+      </div>
+
+      <div class="max-w-4xl mx-auto grid md:grid-cols-3 gap-6">
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <span class="text-emerald-400 font-black">1</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">What changed?</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">La primera línea dice el evento: <code class="text-emerald-400">"Changed: ~/.zshrc"</code>, <code class="text-emerald-400">"New login item: ..."</code> o <code class="text-emerald-400">"Wildcard listener ..."</code>. Lee eso primero.</p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <span class="text-emerald-400 font-black">2</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">When and where?</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Los logs incluyen timestamp ISO, agente que disparó, y ruta al plist. Busca el archivo en <code class="text-emerald-400">~/.local/share/sentinel-arsenal/logs/</code>.</p>
+        </div>
+
+        <div class="bg-slate-900/60 border border-slate-700/50 rounded-2xl p-6">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4">
+            <span class="text-emerald-400 font-black">3</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Is it expected?</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Si tú acabas de instalar una app o modificar un archivo, es ruido. Si no sabes qué lo causó, abre el log y sigue la guía del agente. No ignores alertas desconocidas.</p>
+        </div>
+      </div>
+
+      <div class="max-w-3xl mx-auto mt-12">
+        <div class="terminal rounded-xl overflow-hidden">
+          <div class="terminal-header px-4 py-2 flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+            <span class="ml-2 text-xs text-slate-500">Example log entry — ~/.local/share/sentinel-arsenal/logs/tripwire.log</span>
+          </div>
+          <div class="p-4 font-mono text-sm text-emerald-300 overflow-x-auto">
+            <pre>[2026-07-17T09:14:22+02:00] [tripwire] ALERT Changed: /Users/roberto/.zshrc
+  old: a3f7c2... | new: 8e1d4b...
+  See docs/tripwire.md#investigating</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-24 bg-slate-900/30 border-y border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Questions answered</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Lo que suele preguntarse antes de instalar algo que toca <code class="text-emerald-400">launchd</code>.</p>
+      </div>
+
+      <div class="space-y-0">
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">Will this slow down my Mac?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">No. Los agentes usan <code class="text-emerald-400">launchd</code>, el planificador nativo de macOS. La mayoría corre una vez al día o cada 15-30 minutos, y solo hacen <code class="text-emerald-400">ps</code>, <code class="text-emerald-400">awk</code> o <code class="text-emerald-400">shasum</code> sobre pocos archivos. En una MacBook Air M1 el conjunto completo consume menos CPU que un solo frame de Safari.</p>
+          </div>
+        </div>
+
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">Do I need admin rights?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">Para la mayoría, no. Los LaunchAgents se instalan en <code class="text-emerald-400">~/Library/LaunchAgents/</code> y corren como tu usuario. Solo <code class="text-emerald-400">macOS Audit</code> necesita <code class="text-emerald-400">sudo</code> para leer SIP/FileVault y es opcional.</p>
+          </div>
+        </div>
+
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">Is this an antivirus?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">No. Es una capa de visibilidad y automatización. Complementa, no sustituye, a Malwarebytes, un EDR o el sentido común. Si YARA encuentra algo, usa Malwarebytes para limpiarlo.</p>
+          </div>
+        </div>
+
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">Can I uninstall one agent?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">Sí. Usa el instalador: <code class="text-emerald-400">./install.sh --uninstall --agents=tripwire</code>. También puedes desactivar manualmente con <code class="text-emerald-400">launchctl unload ~/Library/LaunchAgents/com.sentinel.tripwire.plist</code>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">What if an alert is a false positive?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">Eso es correcto y esperado: una alerta significa "algo cambió". Si el cambio fue legítimo, actualiza la línea base de Tripwire, añade el puerto a la allowlist, o añade el LaunchAgent a tu lista de autorizados. La documentación de cada agente explica cómo.</p>
+          </div>
+        </div>
+
+        <div class="faq-item py-5 cursor-pointer" onclick="toggleFaq(this)">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-white font-bold">Why not just use a commercial EDR?</h3>
+            <i data-lucide="chevron-down" class="faq-chevron w-5 h-5 text-slate-500 flex-shrink-0"></i>
+          </div>
+          <div class="faq-answer">
+            <p class="text-slate-400 text-sm leading-relaxed pt-3">Puedes (y deberías) usar ambos. Un EDR comercial ve amenazas conocidas. Sentinel Arsenal ve <strong class="text-slate-300">tu configuración</strong>: cambios en tus shells, servidores expuestos, procesos zombis de IA, persistencia nueva. Es tuyo, transparente y gratuito.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Author / disclaimer -->
   <section class="py-20 bg-slate-950">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -665,6 +1261,16 @@ ls ~/.local/share/sentinel-arsenal/logs/</pre>
 
   <script>
     lucide.createIcons();
+
+    function toggleAgent(card) {
+      const isOpen = card.classList.toggle('open');
+      card.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    function toggleFaq(item) {
+      const isOpen = item.classList.toggle('open');
+      item.setAttribute('aria-expanded', String(isOpen));
+    }
 
     // Mobile menu toggle.
     const menuToggle = document.getElementById('menu-toggle');
