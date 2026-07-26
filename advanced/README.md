@@ -16,6 +16,7 @@ This directory contains extra, standalone components that you can layer on top o
 | `harden.sh` | One-shot hardening script: `.env` permissions, SIP/Gatekeeper/FileVault checks, open ports, baseline creation. |
 | `yara-rules/macos_security.yar` | macOS-focused YARA rules for reverse shells, persistence, infostealers, cryptominers, prompt injection, and MCP hijacking. |
 | `docs/` | Playbooks for macOS audit, forensics, and threat hunting. |
+| `skills/` | Claude Code skills (`/macaudit`, `/macforensics`, `/merge-train-safe`) that wrap the toolkit into reusable agent workflows. |
 
 ## Quick start
 
@@ -54,6 +55,18 @@ Override with:
 ```bash
 export SENTINEL_HOME=/path/to/your/sentinel-data
 ```
+
+## Claude Code skills
+
+The `skills/` directory contains reusable Claude Code skill definitions. Copy any of them to `~/.claude/skills/<name>/SKILL.md` to make them invocable with `/` commands:
+
+| Skill | Command | Purpose |
+|---|---|---|
+| `skills/macosaudit` | `/macaudit` | Run a posture audit using `harden.sh`, `drift-detect.sh`, and `audit_chain.py`. |
+| `skills/macforensics` | `/macforensics` | Collect and preserve evidence after a suspected compromise. |
+| `skills/merge-train-safe` | `/merge-train-safe` | Safe merge-train workflow with billing check, trap detection, and CI verification. |
+
+Each skill includes the standard frontmatter, invocation triggers, protocol steps, guardrails, and anti-patterns.
 
 ## Hook usage example
 
