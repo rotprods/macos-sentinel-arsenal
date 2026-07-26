@@ -13,11 +13,15 @@
 
 📖 **Visual install guide:** [rotprods.github.io/macos-sentinel-arsenal](https://rotprods.github.io/macos-sentinel-arsenal/)  
 🤖 **For AI agents:** read [`AGENTS.md`](./AGENTS.md)  
-⚡ **One-line installer:**
+⚡ **Quick install (clone first, then run):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/rotprods/macos-sentinel-arsenal/main/install.sh | bash
+git clone https://github.com/rotprods/macos-sentinel-arsenal.git
+cd macos-sentinel-arsenal
+./install.sh --all --non-interactive
 ```
+
+> **Security note:** this repo does not recommend `curl | bash`. Review `install.sh` before running it. For a preview, use `./install.sh --all --dry-run`.
 
 ---
 

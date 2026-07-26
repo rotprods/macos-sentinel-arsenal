@@ -23,12 +23,14 @@ Options:
   --non-interactive    Do not prompt; use defaults.
   --dry-run            Show what would be done without changing the system.
   --uninstall          Remove all Sentinel Arsenal plists and scripts.
+  --status             Show which agents are loaded and their last log lines.
   --help               Show this message.
 
 Examples:
   $0 --all --non-interactive
   $0 --agents=tripwire,canary-watch
   $0 --dry-run
+  $0 --status
 EOF
 }
 
@@ -65,6 +67,10 @@ for arg in "$@"; do
       ;;
     --uninstall)
       UNINSTALL=1
+      ;;
+    --status)
+      show_status
+      exit 0
       ;;
     --agents=*)
       AGENTS="${arg#--agents=}"
@@ -114,6 +120,31 @@ run_or_warn() {
     log "[dry-run] would run: $*"
   else
     "$@" || log "WARNING: command failed: $*"
+  fi
+}
+
+show_status() {
+  echo "Sentinel Arsenal status"
+  echo "======================="
+  echo ""
+  local loaded=0 total=0
+  for name in "${all_agent_names[@]}"; do
+    total=$((total + 1))
+    if launchctl list "com.sentinel.$name" >/dev/null 2>&1; then
+      echo "✅ $name: loaded"
+      loaded=$((loaded + 1))
+    else
+      echo "⚠️  $name: not loaded"
+    fi
+  done
+  echo ""
+  echo "$loaded/$total agents loaded."
+  echo ""
+  if [[ -d "$LOG_DIR" ]]; then
+    echo "Recent log files:"
+    ls -lt "$LOG_DIR" | head -n 6
+  else
+    echo "No log directory found at $LOG_DIR"
   fi
 }
 
@@ -193,6 +224,13 @@ install_agent() {
       run_or_warn launchctl bootout "gui/$(id -u)" "$output"
     fi
     run_or_warn launchctl bootstrap "gui/$(id -u)" "$output"
+
+    # Quick load verification.
+    if launchctl list "com.sentinel.$name" >/dev/null 2>&1; then
+      log "Agent $name loaded successfully."
+    else
+      log "WARNING: Agent $name may not have loaded. Check stderr log."
+    fi
   fi
 }
 
