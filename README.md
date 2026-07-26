@@ -57,6 +57,18 @@ Detailed install guides: [`install.md`](./install.md) · [`docs/install-lulu.md`
 
 ---
 
+## Advanced toolkit
+
+For optional, standalone hardening helpers see [`advanced/README.md`](./advanced/README.md):
+
+- **Entropy scanner** + **YARA rules** for obfuscated payloads and macOS malware patterns.
+- **SAST enforcer** write-time hook for secrets and Semgrep checks.
+- **Tamper-evident audit chain** (`audit_chain.py`) with Merkle verification.
+- **Drift detection** + baseline generator for LaunchAgents, ports, and binary hashes.
+- **macOS audit, forensics, and threat-hunting playbooks**.
+
+---
+
 ## Requirements
 
 - macOS 13+ (Ventura/Sonoma/Sequoia/Tahoe)
