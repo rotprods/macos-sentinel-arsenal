@@ -14,12 +14,17 @@
     <integer>10</integer>
     <key>Minute</key>
     <integer>0</integer>
-  </dict>
+</dict>
   <key>RunAtLoad</key>
   <true/>
   <key>StandardOutPath</key>
   <string>{{HOME}}/.local/share/sentinel-arsenal/logs/lulu-posture.out</string>
   <key>StandardErrorPath</key>
   <string>{{HOME}}/.local/share/sentinel-arsenal/logs/lulu-posture.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
 </dict>
 </plist>

@@ -62,7 +62,7 @@ Detailed install guides: [`install.md`](./install.md) · [`docs/install-lulu.md`
 - macOS 13+ (Ventura/Sonoma/Sequoia/Tahoe)
 - Terminal access
 - `bash` or `zsh`
-- Optional but recommended: `terminal-notifier`, `python3`, `node`, `lsof`, `yara`
+- Optional but recommended: `terminal-notifier` (notifications), `lsof` (port/localhost guards), `yara` (monthly scan)
 
 ---
 

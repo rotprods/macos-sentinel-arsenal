@@ -16,5 +16,10 @@
   <string>{{HOME}}/.local/share/sentinel-arsenal/logs/port-sweep.out</string>
   <key>StandardErrorPath</key>
   <string>{{HOME}}/.local/share/sentinel-arsenal/logs/port-sweep.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
 </dict>
 </plist>

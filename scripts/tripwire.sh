@@ -23,6 +23,19 @@ alert() {
   fi
 }
 
+# Expand ~ and $HOME in a path string.
+expand_path() {
+  local raw="$1"
+  # Expand $HOME variable references.
+  raw="${raw/\$HOME/$HOME}"
+  raw="${raw/\$\{HOME\}/$HOME}"
+  # Expand leading ~ to $HOME.
+  if [[ "$raw" == ~* ]]; then
+    raw="${raw/#\~/$HOME}"
+  fi
+  printf '%s' "$raw"
+}
+
 # Build or refresh baseline for a watched path.
 refresh_baseline() {
   local path="$1"
@@ -35,7 +48,8 @@ refresh_baseline() {
   if [[ -f "$path" ]]; then
     shasum -a 256 "$path" > "$BASELINE_DIR/$base.baseline"
   elif [[ -d "$path" ]]; then
-    find "$path" -type f -print0 2>/dev/null | xargs -0 shasum -a 256 2>/dev/null > "$BASELINE_DIR/$base.baseline" || true
+    # Use -exec to avoid xargs argument length limits on large directories.
+    find "$path" -type f -exec shasum -a 256 {} + 2>/dev/null > "$BASELINE_DIR/$base.baseline" || true
   fi
 }
 
@@ -43,7 +57,8 @@ refresh_baseline() {
 if [[ ! -f "$BASELINE_DIR/.initialized" ]]; then
   while IFS= read -r line || [[ -n "$line" ]]; do
     [[ -z "$line" || "$line" =~ ^# ]] && continue
-    refresh_baseline "$line"
+    path=$(expand_path "$line")
+    refresh_baseline "$path"
   done < "$WATCH_FILE"
   touch "$BASELINE_DIR/.initialized"
   log "Baseline initialized"
@@ -53,9 +68,10 @@ fi
 # Compare current state against baseline.
 while IFS= read -r line || [[ -n "$line" ]]; do
   [[ -z "$line" || "$line" =~ ^# ]] && continue
-  base=$(printf '%s' "$line" | shasum -a 256 | awk '{print $1}')
+  path=$(expand_path "$line")
+  base=$(printf '%s' "$path" | shasum -a 256 | awk '{print $1}')
   baseline="$BASELINE_DIR/$base.baseline"
-  if [[ ! -e "$line" ]]; then
+  if [[ ! -e "$path" ]]; then
     if [[ -f "$baseline" ]]; then
       alert "Missing: $line"
       rm -f "$baseline"
@@ -64,14 +80,14 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   fi
   if [[ ! -f "$baseline" ]]; then
     alert "New watched path: $line (baseline created)"
-    refresh_baseline "$line"
+    refresh_baseline "$path"
     continue
   fi
   tmp_current="$BASELINE_DIR/$base.current"
-  if [[ -f "$line" ]]; then
-    shasum -a 256 "$line" > "$tmp_current"
-  elif [[ -d "$line" ]]; then
-    find "$line" -type f -print0 2>/dev/null | xargs -0 shasum -a 256 2>/dev/null > "$tmp_current" || true
+  if [[ -f "$path" ]]; then
+    shasum -a 256 "$path" > "$tmp_current"
+  elif [[ -d "$path" ]]; then
+    find "$path" -type f -exec shasum -a 256 {} + 2>/dev/null > "$tmp_current" || true
   fi
   if ! diff -q "$baseline" "$tmp_current" >/dev/null 2>&1; then
     alert "Changed: $line"

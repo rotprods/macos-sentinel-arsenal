@@ -44,7 +44,7 @@ if [[ "${CANARY_STRICT:-0}" == "1" ]]; then
   for f in "$CANARY_DIR"/*; do
     [[ -f "$f" ]] || continue
     bn=$(basename "$f")
-    if ! grep -qE "^${bn}\|" "$CANARY_LIST" 2>/dev/null; then
+    if ! grep -qF "${bn}|" "$CANARY_LIST" 2>/dev/null; then
       alert "Unknown file in canary dir: $bn"
     fi
   done

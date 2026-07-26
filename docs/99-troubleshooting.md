@@ -44,4 +44,4 @@ brew install lsof yara
 ./install.sh --uninstall
 ```
 
-This removes Sentinel Arsenal plists and scripts. It does **not** remove LuLu, BlockBlock, or Malwarebytes.
+This removes Sentinel Arsenal plists and scripts. It does **not** remove LuLu, BlockBlock, Malwarebytes, or OverSight.

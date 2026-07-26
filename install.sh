@@ -53,6 +53,33 @@ MODE="interactive"
 AGENTS=""
 DRY_RUN=0
 UNINSTALL=0
+STATUS=0
+
+# Status helper (defined early because --status is handled after parsing).
+show_status() {
+  echo "Sentinel Arsenal status"
+  echo "======================="
+  echo ""
+  local loaded=0 total=0
+  for name in "${all_agent_names[@]}"; do
+    total=$((total + 1))
+    if launchctl list "com.sentinel.$name" >/dev/null 2>&1; then
+      echo "✅ $name: loaded"
+      loaded=$((loaded + 1))
+    else
+      echo "⚠️  $name: not loaded"
+    fi
+  done
+  echo ""
+  echo "$loaded/$total agents loaded."
+  echo ""
+  if [[ -d "$LOG_DIR" ]]; then
+    echo "Recent log files:"
+    ls -lt "$LOG_DIR" | head -n 6
+  else
+    echo "No log directory found at $LOG_DIR"
+  fi
+}
 
 for arg in "$@"; do
   case "$arg" in
@@ -69,8 +96,7 @@ for arg in "$@"; do
       UNINSTALL=1
       ;;
     --status)
-      show_status
-      exit 0
+      STATUS=1
       ;;
     --agents=*)
       AGENTS="${arg#--agents=}"
@@ -99,6 +125,11 @@ all_agent_names=(
   login-item-inspector
 )
 
+if [[ "$STATUS" -eq 1 ]]; then
+  show_status
+  exit 0
+fi
+
 if [[ "$AGENTS" == "all" ]]; then
   selected=("${all_agent_names[@]}")
 elif [[ -n "$AGENTS" ]]; then
@@ -123,31 +154,6 @@ run_or_warn() {
   fi
 }
 
-show_status() {
-  echo "Sentinel Arsenal status"
-  echo "======================="
-  echo ""
-  local loaded=0 total=0
-  for name in "${all_agent_names[@]}"; do
-    total=$((total + 1))
-    if launchctl list "com.sentinel.$name" >/dev/null 2>&1; then
-      echo "✅ $name: loaded"
-      loaded=$((loaded + 1))
-    else
-      echo "⚠️  $name: not loaded"
-    fi
-  done
-  echo ""
-  echo "$loaded/$total agents loaded."
-  echo ""
-  if [[ -d "$LOG_DIR" ]]; then
-    echo "Recent log files:"
-    ls -lt "$LOG_DIR" | head -n 6
-  else
-    echo "No log directory found at $LOG_DIR"
-  fi
-}
-
 ensure_dirs() {
   run mkdir -p "$SCRIPT_DIR" "$LOG_DIR" "$SENTINEL_HOME/baselines" \
     "$SENTINEL_HOME/canaries" "$SENTINEL_HOME/archive" \
@@ -166,25 +172,37 @@ install_scripts() {
 install_default_configs() {
   # Watchlist for tripwire.
   if [[ ! -f "$SENTINEL_HOME/watchlist.txt" ]]; then
-    run cat > "$SENTINEL_HOME/watchlist.txt" <<'EOF'
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      log "[dry-run] would write $SENTINEL_HOME/watchlist.txt"
+    else
+      cat > "$SENTINEL_HOME/watchlist.txt" <<'EOF'
 # Sentinel Arsenal tripwire watchlist
 # Add one absolute or $HOME-relative path per line.
 # ~/.ssh/authorized_keys
 EOF
+    fi
   fi
 
   # Canary list.
   if [[ ! -f "$SENTINEL_HOME/canary-list.txt" ]]; then
-    run cat > "$SENTINEL_HOME/canary-list.txt" <<'EOF'
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      log "[dry-run] would write $SENTINEL_HOME/canary-list.txt"
+    else
+      cat > "$SENTINEL_HOME/canary-list.txt" <<'EOF'
 # Sentinel Arsenal canary list
 # Format: name|expected_content
 # secret-token.txt|canary-placeholder
 EOF
+    fi
   fi
 
   # Allowlists.
   for f in port-allowlist.txt localhost-allowlist.txt login-items-allowlist.txt; do
-    run touch "$SENTINEL_HOME/$f"
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      log "[dry-run] would touch $SENTINEL_HOME/$f"
+    else
+      touch "$SENTINEL_HOME/$f"
+    fi
   done
 }
 
@@ -211,12 +229,21 @@ install_agent() {
     return 1
   fi
 
-  # Backup existing plist.
+  # Backup existing plist (do not overwrite if same-second backup exists).
   if [[ -f "$output" ]]; then
-    run cp "$output" "$output.bak.$(date +%Y%m%d%H%M%S)"
+    local backup="$output.bak.$(date +%Y%m%d%H%M%S)"
+    if [[ -e "$backup" ]]; then
+      backup="$backup.$RANDOM"
+    fi
+    run cp "$output" "$backup"
   fi
 
   render_plist "$template" "$output"
+
+  # launchd requires user-domain plists to be writable only by the owner.
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    run chmod 644 "$output"
+  fi
 
   if [[ "$DRY_RUN" -eq 0 ]]; then
     # Load or bootstrap the agent.

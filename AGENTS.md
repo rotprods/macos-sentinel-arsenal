@@ -24,7 +24,7 @@ If you are running in a desktop/macOS environment, open the HTML guide for the h
 open index.html
 ```
 
-If you cannot open it automatically, give the human this URL after they publish Pages, or tell them to double-click `index.html` in Finder:
+On Linux, use `xdg-open index.html`. In a web-only environment, share the GitHub Pages URL or tell them to double-click `index.html` in Finder.
 
 ```
 https://rotprods.github.io/macos-sentinel-arsenal/
