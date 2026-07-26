@@ -66,6 +66,7 @@ For optional, standalone hardening helpers see [`advanced/README.md`](./advanced
 - **Tamper-evident audit chain** (`audit_chain.py`) with Merkle verification.
 - **Drift detection** + baseline generator for LaunchAgents, ports, and binary hashes.
 - **macOS audit, forensics, and threat-hunting playbooks**.
+- **Claude Code skills** (`advanced/skills/`) for `/macaudit`, `/macforensics`, and `/merge-train-safe` workflows.
 
 ---
 
